@@ -1,0 +1,123 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Linked list node to store environment variable name and value
+struct env_node {
+    char *name;
+    char *value;
+    struct env_node *next;
+};
+
+// Global variable to store the head of the environment linked list
+struct env_node *env_list = NULL;
+
+// Function to print the current environment
+void _myenv() {
+    extern char **environ;
+    char **env = environ;
+
+    while (*env != NULL) {
+        printf("%s\n", *env);
+        env++;
+    }
+}
+
+// Function to get the value of an environment variable
+char *_getenv(const char *name) {
+    extern char **environ;
+    char **env = environ;
+
+    while (*env != NULL) {
+        char *current_env = *env;
+        char *env_name = strtok(current_env, "=");
+        char *env_value = strtok(NULL, "=");
+
+        if (strcmp(env_name, name) == 0) {
+            return env_value;
+        }
+
+        env++;
+    }
+
+    return NULL;
+}
+
+// Function to initialize a new environment variable
+void _mysetenv(const char *name, const char *value) {
+    char *env_var = malloc(strlen(name) + strlen(value) + 2);  // +2 for '=' and '\0'
+    sprintf(env_var, "%s=%s", name, value);
+    putenv(env_var);
+
+    // Create a new node and add it to the environment linked list
+    struct env_node *new_node = malloc(sizeof(struct env_node));
+    new_node->name = strdup(name);
+    new_node->value = strdup(value);
+    new_node->next = env_list;
+    env_list = new_node;
+}
+
+// Function to remove an environment variable
+void _myunsetenv(const char *name) {
+    struct env_node *prev = NULL;
+    struct env_node *current = env_list;
+
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            if (prev == NULL) {
+                env_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current->name);
+            free(current->value);
+            free(current);
+            break;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    unsetenv(name);
+}
+
+// Function to populate the environment linked list
+void populate_env_list() {
+    extern char **environ;
+    char **env = environ;
+
+    while (*env != NULL) {
+        char *current_env = *env;
+        char *env_name = strtok(current_env, "=");
+        char *env_value = strtok(NULL, "=");
+
+        // Create a new node and add it to the environment linked list
+        struct env_node *new_node = malloc(sizeof(struct env_node));
+        new_node->name = strdup(env_name);
+        new_node->value = strdup(env_value);
+        new_node->next = env_list;
+        env_list = new_node;
+
+        env++;
+    }
+}
+
+int main() {
+    populate_env_list();
+
+    _mysetenv("MY_VAR", "Hello");
+    _mysetenv("ANOTHER_VAR", "World");
+
+    printf("Environment variables:\n");
+    _myenv();
+
+    const char *var_name = "MY_VAR";
+    printf("Value of %s: %s\n", var_name, _getenv(var_name));
+
+    _myunsetenv("MY_VAR");
+
+    printf("Environment variables after unset:\n");
+    _myenv();
+
+    return 0;
+}

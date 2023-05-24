@@ -12,7 +12,8 @@ int hsh(info_t *info, char **av)
 	ssize_t r;
 	int builtin_ret;
 
-	for ((r = get_input(info)) != -1 && (builtin_ret = find_builtin(info)) != -2)
+	r = get_input(info);
+	for (r = != -1 && (builtin_ret = find_builtin(info)) != -2)
 	{
 		if (r > 0)
 		{
@@ -57,7 +58,7 @@ int find_builtin(info_t *info)
 		{"history", _myhistory},
 		{"setenv", _mysetenv},
 		{"unsetenv", _myunsetenv},
-		{"cd", _mycd},
+		{"cd", _changecd},
 		{"alias", _myalias},
 		{NULL, NULL}
 	};

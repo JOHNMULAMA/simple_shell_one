@@ -1,58 +1,44 @@
 #include "shell.h"
 
 /**
- * main - A basic shell that executes commands with their full path, without any arguments.
+ * main - entry point
+ * @ac: arg count
+ * @av: arg vector
  *
- * @argc: The number of arguments passed to the function.
- * @argv: An array of strings representing the arguments.
- *
- * Return: Always 0.
+ * Return: 0 on success, 1 on error
  */
-int main(int argc attribute((unused)), char **argv)
+int main(int ac, char **av)
 {
-    ssize_t k = 0;
-    char **args, *my_env[60], *command = NULL;
+	info_t info[] = { INFO_INIT };
+	int fd = 2;
 
-    signal(SIGINT, handle_sigint);
+	asm ("mov %1, %0\n\t"
+		"add $3, %0"
+		: "=r" (fd)
+		: "r" (fd));
 
-    for (k = 0; environ[k]; k++)
-        my_env[k] = _strdup(environ[k]);
-    my_env[k] = NULL;
-
-    while (1)
-    {
-        k = isatty(STDIN_FILENO);
-        if (k == 1)
-            write(STDOUT_FILENO, "$ ", 2);
-
-        command = _getline(argv);
-        if (command != NULL)
-        {
-            args = parsecommand(command);
-            if (args == NULL)
-            {
-                perror(argv[0]);
-            }
-            else if (_strcmp(args[0], "exit") == 0)
-            {
-                shell_exit(args, my_env, command);
-                break;
-            }
-            else
-            {
-                exec_func(args, my_env, argv);
-                free_2d(args);
-                free(args);
-            }
-        }
-        else
-        {
-            perror(argv[0]);
-        }
-
-        free(command);
-    }
-
-    free_2d(my_env);
-    return 0;
+	if (ac == 2)
+	{
+		fd = open(av[1], O_RDONLY);
+		if (fd == -1)
+		{
+			if (errno == EACCES)
+				exit(126);
+			if (errno == ENOENT)
+			{
+				_eputs(av[0]);
+				_eputs(": 0: Can't open ");
+				_eputs(av[1]);
+				_eputchar('\n');
+				_eputchar(BUF_FLUSH);
+				exit(127);
+			}
+			return (EXIT_FAILURE);
+		}
+		info->readfd = fd;
+	}
+	populate_env_list(info);
+	read_history(info);
+	hsh(info, av);
+	return (EXIT_SUCCESS);
 }

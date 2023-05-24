@@ -1,22 +1,3 @@
-#include "shell.h"
-
-/**
- * bfree - frees a pointer and NULLs the address
- * @ptr: address of the pointer to free
- *
- * Return: 1 if freed, otherwise 0.
- */
-int bfree(void **ptr)
-{
-	if (ptr && *ptr)
-	{
-		free(*ptr);
-		*ptr = NULL;
-		return (1);
-	}
-	return (0);
-}
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,10 +24,13 @@ int unset_alias(char *alias_name)
 {
 	int i;
 
-	for (i = 0; i < alias_count; i++) {
-		if (strcmp(alias_list[i].name, alias_name) == 0) {
+	for (i = 0; i < alias_count; i++)
+	{
+		if (strcmp(alias_list[i].name, alias_name) == 0)
+		{
 			/* Shift the remaining aliases */
-			for (; i < alias_count - 1; i++) {
+			for (; i < alias_count - 1; i++)
+			{
 				strcpy(alias_list[i].name, alias_list[i + 1].name);
 				strcpy(alias_list[i].value, alias_list[i + 1].value);
 			}
@@ -67,7 +51,8 @@ int unset_alias(char *alias_name)
  */
 int set_alias(char *alias_name, char *alias_value)
 {
-	if (alias_count >= MAX_ALIAS_COUNT) {
+	if (alias_count >= MAX_ALIAS_COUNT)
+	{
 		fprintf(stderr, "Maximum number of aliases reached.\n");
 		return -1; /* Alias limit reached */
 	}
@@ -89,8 +74,10 @@ int print_alias(char *alias_name)
 {
 	int i;
 
-	for (i = 0; i < alias_count; i++) {
-		if (strcmp(alias_list[i].name, alias_name) == 0) {
+	for (i = 0; i < alias_count; i++)
+	{
+		if (strcmp(alias_list[i].name, alias_name) == 0)
+		{
 			printf("%s='%s'\n", alias_list[i].name, alias_list[i].value);
 			return 0; /* Alias found and printed */
 		}
@@ -107,16 +94,19 @@ int print_alias(char *alias_name)
  */
 int _myalias(char **args)
 {
-	if (args[1] == NULL) {
+	if (args[1] == NULL)
+	{
 		/* No arguments provided, print all aliases */
 		int i;
-		for (i = 0; i < alias_count; i++) {
+		for (i = 0; i < alias_count; i++)
+		{
 			printf("%s='%s'\n", alias_list[i].name, alias_list[i].value);
 		}
 		return 0;
 	}
 
-	if (args[2] == NULL) {
+	if (args[2] == NULL)
+	{
 		/* Only alias name provided, print the alias value */
 		return print_alias(args[1]);
 	}

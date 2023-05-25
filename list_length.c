@@ -30,12 +30,11 @@ char **list_to_strings(list_t *head)
 	{
 		return (NULL);
 	}
-	int list_size = 0,list_t *node = head;
+	int list_size = 0, list_t *node = head;
 
 	while (node)
 	{
-		list_size++;
-		node = node->next;
+		list_size++, node = node->next;
 	}
 
 	if (list_size == 0)
@@ -61,8 +60,7 @@ char **list_to_strings(list_t *head)
 				free(strs[j]), free(strs);
 			return (NULL);
 		}
-		_strcpy(strs[i], node->str);
-		i++;
+		_strcpy(strs[i], node->str), i++;
 		node = node->next;
 	}
 	strs[i] = NULL;
